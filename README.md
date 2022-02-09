@@ -1,4 +1,6 @@
 # rules_emulation
+[![CI](https://github.com/bazelembedded/rules_emulation/actions/workflows/blank.yml/badge.svg)](https://github.com/bazelembedded/rules_emulation/actions/workflows/blank.yml)
+
 A set of Bazel rules for emulating system targets for testing via an execution
 wrapper.
 
