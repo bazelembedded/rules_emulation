@@ -1,0 +1,23 @@
+load(":qemu.bzl", "qemu_execution_wrapper")
+
+qemu_execution_wrapper(
+    name = "test_wrapper",
+    cpu = "cortex-m0",
+    machine = "lm3s6965evb",
+)
+
+filegroup(
+    name = "bazel",
+    srcs = glob(["*.bzl"]),
+    visibility = ["//visibility:public"],
+)
+
+exports_files(["qemu_execution_wrapper.sh.tpl"])
+
+cc_test(
+    name = "test_passthrough",
+    srcs = ["test_passthrough.cc"],
+    # We need to ensure that the passthrough wrapper is passing all arguments
+    # through properly. See test_passthrough.cc for more information.
+    args = ["some_arbitrary_argument"],
+)

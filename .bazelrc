@@ -1,0 +1,8 @@
+# Support Bazel modules by default.
+common:bzlmod --experimental_enable_bzlmod
+
+# Use an vendored central registry snapshot.
+common --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/a8f7d07/
+
+# Test passthrough execution wrapper
+common:passthrough_wrapper --run_under=//emulation:passthrough

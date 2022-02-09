@@ -1,0 +1,19 @@
+filegroup(
+    name = "bazel",
+    srcs = [
+        "defs.bzl",
+        "//emulation/internal:bazel",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+exports_files([
+    "defs.bzl",
+    "BUILD.bazel",
+])
+
+sh_binary(
+    name = "passthrough",
+    srcs = ["passthrough.sh"],
+    visibility = ["//visibility:public"],
+)
