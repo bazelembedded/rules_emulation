@@ -2,7 +2,8 @@
 common:bzlmod --experimental_enable_bzlmod
 
 # Use an vendored central registry snapshot.
-common --registry=https://raw.githubusercontent.com/bazelbuild/bazel-central-registry/a8f7d07/
+common:bzlmod --registry=https://raw.githubusercontent.com/bazelembedded/bazel-central-registry/ca1e2cb/
 
 # Test passthrough execution wrapper
 common:passthrough_wrapper --run_under=//emulation:passthrough
+build --incompatible_strict_action_env
