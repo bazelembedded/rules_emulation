@@ -1,0 +1,5 @@
+load(":toolchains.bzl", "create_toolchains")
+
+toolchain_type(name = "toolchain_type")
+
+create_toolchains()

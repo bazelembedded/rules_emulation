@@ -7,3 +7,6 @@ common:bzlmod --registry=https://raw.githubusercontent.com/bazelembedded/bazel-c
 # Test passthrough execution wrapper
 common:passthrough_wrapper --run_under=//emulation:passthrough
 build --incompatible_strict_action_env
+
+# Adds a wrapper to each execution.
+test --run_under=//:wrapper

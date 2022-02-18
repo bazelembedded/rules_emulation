@@ -2,6 +2,7 @@ module(
     name = "rules_emulation",
     version = "0.0.1",
     compatibility_level = 1,
+    toolchains_to_register = ["//emulation/qemu:all"],
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.1.1")
@@ -16,4 +17,27 @@ bazel_dep(
 bazel_dep(
     name = "platforms",
     version = "0.0.4",
+)
+
+bazel_dep(
+    name = "rules_cipd",
+    version = "0.0.1",
+)
+
+cipd = use_extension("@rules_cipd//cipd/internal:cipd_modules.bzl", "cipd")
+
+cipd.package(
+    path = "fuchsia/third_party/qemu/linux-amd64",
+    id = "FFZaD9tecL-z0lq2XP_7UqiAaMgRGwXTyvcmkv7XCQcC",
+)
+
+cipd.package(
+    id = "79L6B9YhuL7uIg_CxwlQcZqLOixVtS2Cctn7dmVg0q4C",
+    path = "fuchsia/third_party/qemu/mac-amd64",
+)
+
+use_repo(
+    cipd,
+    qemu_linux_amd64 = "cipd_fuchsia_third_party_qemu_linux_amd64",
+    qemu_macos_amd64 = "cipd_fuchsia_third_party_qemu_mac_amd64",
 )
