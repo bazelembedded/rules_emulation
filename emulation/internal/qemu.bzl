@@ -27,40 +27,53 @@ def cpu_constraint_value_as_qemu_cpu(value):
 
 def _qemu_execution_wrapper_impl(ctx):
     wrapper = ctx.actions.declare_file(ctx.attr.name + ".sh")
+    qemu = ctx.toolchains["//emulation/qemu:toolchain_type"].qemu_info.qemu
+    script = ctx.toolchains["//emulation/qemu:toolchain_type"].qemu_info.script_template
 
-    ctx.actions.expand_template(
-        template = ctx.file._script_template,
-        output = wrapper,
-        substitutions = {
-            "{QEMU}": ctx.attr._qemu,
-            "{ARGS}": "-semihosting-config " + ",".join([
-                          k + "=" + v
-                          for k, v in ctx.attr.semihosting_config.items()
-                      ]) + " -machine " + ctx.attr.machine + " -cpu " + ctx.attr.cpu +
-                      ("" if ctx.attr.graphical else " -nographic ") +
-                      ("" if ctx.attr.reboot_on_exit else " -no-reboot "),
-        },
-        is_executable = True,
-    )
+    args = []
+    if ctx.attr.semihosting_config:
+        args.append("-semihosting-config " + ",".join([
+            k + "=" + v
+            for k, v in ctx.attr.semihosting_config.items()
+        ]))
+    if ctx.attr.machine != "":
+        args.append("-machine " + ctx.attr.machine)
+    if ctx.attr.cpu != "":
+        args.append("-cpu" + ctx.attr.cpu)
+    if ctx.attr.graphical != "":
+        args.append("-nographic")
+    if ctx.attr.reboot_on_exit != "":
+        args.append("-no-reboot")
+
+    if qemu != None:
+        ctx.actions.expand_template(
+            template = script,
+            output = wrapper,
+            substitutions = {
+                "{WORKSPACE}": ctx.workspace_name,
+                "{QEMU}": qemu.path,
+                "{ARGS}": " ".join(args),
+            },
+            is_executable = True,
+        )
+    else:
+        ctx.actions.symlink(
+            output = wrapper,
+            target_file = script,
+        )
 
     return [DefaultInfo(
         files = depset([wrapper]),
         executable = wrapper,
+        runfiles = ctx.runfiles(files = [qemu]) if qemu else None,
     )]
 
 qemu_execution_wrapper = rule(
     _qemu_execution_wrapper_impl,
     attrs = {
         "_qemu": attr.string(default = "/usr/bin/qemu-system-arm"),
-        "_script_template": attr.label(
-            default = "//emulation/internal:qemu_execution_wrapper.sh.tpl",
-            allow_single_file = True,
-        ),
         "semihosting_config": attr.string_dict(
-            default = {
-                "target": "native",
-                "enable": "off",
-            },
+            default = {},
             doc =
                 """A key value map of semihosting configuration options.
 
@@ -69,11 +82,9 @@ See man page for more information.
 """,
         ),
         "cpu": attr.string(
-            mandatory = True,
             doc = "The CPU to use for this qemu instance. This is the QEMU CPU type, to simplify the mapping between @platforms//cpu:all->qemu_cpus see cpu_constraint_value_as_qemu_cpu.",
         ),
         "machine": attr.string(
-            mandatory = True,
             doc = "The machine type to use for the QEMU instance. Run `qemu-system-arm -machine help` to see the list of supported machines.",
         ),
         "kernel": attr.label(
@@ -88,4 +99,6 @@ See man page for more information.
             default = False,
         ),
     },
+    toolchains = ["//emulation/qemu:toolchain_type"],
+    executable = True,
 )

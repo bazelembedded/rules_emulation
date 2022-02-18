@@ -1,0 +1,7 @@
+alias(
+    name = "wrapper",
+    actual = select({
+        "//examples/x86_baremetal:x86_64_baremetal_setting": "//examples/x86_baremetal:x86_64_qemu_system_wrapper",
+        "//conditions:default": "//emulation:passthrough",
+    }),
+)

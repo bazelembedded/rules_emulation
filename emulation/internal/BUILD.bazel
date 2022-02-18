@@ -2,8 +2,9 @@ load(":qemu.bzl", "qemu_execution_wrapper")
 
 qemu_execution_wrapper(
     name = "test_wrapper",
-    cpu = "cortex-m0",
+    cpu = "cortex-m3",
     machine = "lm3s6965evb",
+    target_compatible_with = ["@platforms//cpu:armv7-m"],
 )
 
 filegroup(
@@ -12,7 +13,10 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-exports_files(["qemu_execution_wrapper.sh.tpl"])
+exports_files([
+    "qemu_execution_wrapper.sh.tpl",
+    "empty_execution_wrapper.sh.tpl",
+])
 
 cc_test(
     name = "test_passthrough",
@@ -20,4 +24,13 @@ cc_test(
     # We need to ensure that the passthrough wrapper is passing all arguments
     # through properly. See test_passthrough.cc for more information.
     args = ["some_arbitrary_argument"],
+    # TODO(#5): Remove manual tag once Bazel supports toolchain resolution
+    # skipping.
+    tags = ["manual"],
+    target_compatible_with = select({
+        "@platforms//os:linux": [],
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
 )

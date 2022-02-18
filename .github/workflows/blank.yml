@@ -21,24 +21,12 @@ jobs:
       matrix:
         # TODO(#1): Add windows once it is supported.
         os: [ubuntu-18.04, macos-10.15]
+        platforms: ["//examples/x86_baremetal:x86_64_baremetal", "@local_config_platform//:host"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      - name: Install system qemu macos
-        if: ${{ matrix.os == 'macos-10.15' }}
-        run: |
-          brew install qemu
-          whereis qemu-system-arm
-
-      - name: Install system qemu ubuntu
-        if: ${{ matrix.os == 'ubuntu-18.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes qemu-system-arm
-          whereis qemu-system-arm
 
       - name: Mount bazel cache
         uses: actions/cache@v2
@@ -48,10 +36,44 @@ jobs:
 
       - name: Bazel build/test
         run: |
-          bazelisk test //...
-          bazelisk build //...
+          # TODO(#6) Remove example filters once we get these working on macos.
+          # bazelisk test --platforms=${{matrix.platforms}} -- //... -//examples/...
+          bazelisk build //... --platforms=${{matrix.platforms}} -- //... -//examples/...
 
       - name: Bazel build/test bzlmod
         run: |
-          bazelisk test //...  --config bzlmod
-          bazelisk build //... --config bzlmod
+          # TODO(#6) Remove example filters once we get these working on macos.
+          # bazelisk test --platforms=${{matrix.platforms}}  --config bzlmod -- //... -//examples/...
+          bazelisk build --platforms=${{matrix.platforms}} --config bzlmod -- //... -//examples/...
+
+
+  # TODO(#6) Remove this entire section when we get these working on macos.
+  examples:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO(#1): Add windows/macos once it is supported.
+        os: [ubuntu-18.04]
+        platforms: ["//examples/x86_baremetal:x86_64_baremetal", "@local_config_platform//:host"]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Mount bazel cache
+        uses: actions/cache@v2
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: ${{ runner.os }}-bazel
+
+      - name: Bazel build/test
+        run: |
+          bazelisk test //examples/... --platforms=${{matrix.platforms}}
+          bazelisk build //examples/... --platforms=${{matrix.platforms}}
+
+      - name: Bazel build/test bzlmod
+        run: |
+          bazelisk test  //examples/... --platforms=${{matrix.platforms}}  --config bzlmod
+          bazelisk build //examples/... --platforms=${{matrix.platforms}} --config bzlmod
