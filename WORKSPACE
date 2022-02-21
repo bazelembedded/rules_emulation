@@ -32,33 +32,19 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
-http_archive(
-    name = "rules_cipd",
-    sha256 = "b96ad320f82f0c881705ef10e78770a1e20517c7b1925564f858b16e009c30d4",
-    urls = [
-        "https://github.com/bazelembedded/rules_cipd/releases/download/0.0.1/rules_cipd-0.0.1.tar.gz",
-    ],
+# Setup deps for rules_emulation.
+# Required by rules_emulation.
+load("@rules_emulation//:emulation_deps.bzl", "emulation_deps")
+
+emulation_deps()
+
+load(
+    "@rules_emulation//:emulation_workspace.bzl",
+    "emulation_workspace",
 )
-
-load("@rules_cipd//:cipd_deps.bzl", "cipd_deps")
-
-cipd_deps()
-
-# Pull in your dependencies from cipd.
-load("@rules_cipd//cipd:defs.bzl", "cipd_package")
-
-cipd_package(
-    name = "qemu_linux_amd64",
-    id = "FFZaD9tecL-z0lq2XP_7UqiAaMgRGwXTyvcmkv7XCQcC",
-    path = "fuchsia/third_party/qemu/linux-amd64",
-)
-
-cipd_package(
-    name = "qemu_macos_amd64",
-    id = "79L6B9YhuL7uIg_CxwlQcZqLOixVtS2Cctn7dmVg0q4C",
-    path = "fuchsia/third_party/qemu/mac-amd64",
-)
-
-register_toolchains("@rules_emulation//emulation/qemu:all")
 
 register_execution_platforms("@rules_emulation//examples/x86_baremetal:x86_64_baremetal")
+
+emulation_workspace()
+
+register_toolchains("@rules_emulation//emulation/qemu:all")

@@ -16,6 +16,16 @@ git_repository(
     remote = "https://github.com/bazelembedded/rules_emulation.git",
     commit = "<TODO>",
 )
+
+load("@rules_emulation//:emulation_deps.bzl", "emulation_deps")
+
+emulation_deps()
+
+load("@rules_emulation//:emulation_workspace.bzl", "emulation_workspace")
+
+emulation_workspace()
+
+register_toolchains("@rules_emulation//emulation/qemu:all")
 ```
 
 Add the following to a build file somewhere;
@@ -83,7 +93,3 @@ test --run_under=//:execution_wrapper
 For more information on selects/platforms see the
 [Configurable Build Attributes](https://docs.bazel.build/versions/main/configurable-attributes.html)
 page.
-
-## Limitations
-Currently this set of rules depends on your system installation of
-`qemu-system-arm`, and will only work on Posix based systems.
