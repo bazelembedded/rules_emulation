@@ -14,3 +14,8 @@ stardoc(
     input = "//emulation:defs.bzl",
     deps = [":rules_emulation"],
 )
+
+filegroup(
+    name = "distribution",
+    srcs = glob(["*"]),
+)

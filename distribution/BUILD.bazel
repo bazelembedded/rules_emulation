@@ -1,0 +1,44 @@
+load("//:version.bzl", "version")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_pkg//releasing:defs.bzl", "print_rel_notes")
+
+package(
+    default_visibility = ["//visibility:private"],
+)
+
+pkg_tar(
+    name = "srcs",
+    srcs = ["@rules_emulation//:distribution"],
+    mode = "0444",
+    # Make it owned by root so it does not have the uid of the CI robot.
+    owner = "0.0",
+    package_dir = "",
+    strip_prefix = ".",
+)
+
+# Build the artifact to put on the github release page.
+pkg_tar(
+    name = "rules_emulation-%s" % version,
+    extension = "tar.gz",
+    # Make it owned by root so it does not have the uid of the CI robot.
+    owner = "0.0",
+    strip_prefix = ".",
+    deps = [
+        "@rules_emulation//distribution:srcs.tar",
+    ],
+)
+
+print_rel_notes(
+    name = "relnotes",
+    outs = ["relnotes.txt"],
+    deps_method = "emulation_deps",
+    org = "bazelembedded",
+    repo = "rules_emulation",
+    setup_file = "//:emulation_deps.bzl",
+    version = version,
+)
+
+filegroup(
+    name = "scripts",
+    srcs = ["create_release.sh"],
+)

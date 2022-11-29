@@ -29,3 +29,19 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
+
+http_archive(
+    name = "rules_cipd",
+    sha256 = "b96ad320f82f0c881705ef10e78770a1e20517c7b1925564f858b16e009c30d4",
+    urls = [
+        "https://github.com/bazelembedded/rules_cipd/releases/download/0.0.1/rules_cipd-0.0.1.tar.gz",
+    ],
+)
+
+load("@rules_cipd//:cipd_deps.bzl", "cipd_deps")
+
+cipd_deps()
+
+load("//:emulation_deps.bzl", "emulation_deps")
+
+emulation_deps()

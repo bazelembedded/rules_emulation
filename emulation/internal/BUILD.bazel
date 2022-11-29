@@ -7,8 +7,8 @@ qemu_execution_wrapper(
 )
 
 filegroup(
-    name = "bazel",
-    srcs = glob(["*.bzl"]),
+    name = "distribution",
+    srcs = glob(["*"]),
     visibility = ["//visibility:public"],
 )
 

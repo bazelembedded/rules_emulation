@@ -17,3 +17,13 @@ sh_binary(
     srcs = ["passthrough.sh"],
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "distribution",
+    srcs = glob(["*"]),
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "",
+)
